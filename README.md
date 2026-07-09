@@ -15,12 +15,20 @@ Each of the three scripts in this repository can be used independently. However,
 
 ### Example Usage: ctaspeedtest.py
 
+Run `python ctaspeedtest.py --help` to see a list of available command line options.
+
+Let's say I want to compare speeds for the 49, X49, 50, and 94 CTA branches. I could do so with the following script, which would run for 15 minutes and check bus positions every minute.
+
 ```bash
-python3 ./ctaspeedtest.py --key <your_api_key> --duration 5 --increment 1 49 X49 50 94
+python3 ./ctaspeedtest.py --key <your_api_key> --duration 15 --increment 1 49 X49 50 94
 ```
 
-If we want to restrict the locations of the buses we are tracking, we can add arguments accordingly. For example, the code below will create a southern boundary so that we only track buses that are north of Lake Street:
+This will create a `.csv` file in the `output` folder that shows the average speed of every bus ID currently operating on the provided lines. This allows you to compare speeds between buses on the same line, as well as on different lines.
+
+Longer duration and smaller increments will give you more accurate data. Obviously, this will take longer to run.
+
+If we want to restrict the locations of the buses we are tracking, we can add arguments accordingly. This will give us more accurate data for that stretch of the route. For example, the code below will create a southern boundary at latitude 41.884268 (latitude of the California Green Line stop) so that we only track buses that are north of Lake Street:
 
 ```bash
-python3 ./ctaspeedtest.py --key <your_api_key> --southborder 41.884268 --duration 5 --increment 1 49 X49 50 94
+python3 ./ctaspeedtest.py --key <your_api_key> --southborder 41.884268 --duration 15 --increment 1 49 X49 50 94
 ```
