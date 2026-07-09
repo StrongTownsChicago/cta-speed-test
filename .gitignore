@@ -1,0 +1,19 @@
+# Ignore my virtual environment
+.venv
+
+# Ignore python cache
+__pycache__
+
+# Ignore my notes
+ignore.md
+
+# Ignore API keys
+secret.py
+secret.txt
+secret.md
+
+# Ignore data files
+data/*.csv
+
+# Ignore output files
+output/*.csv
