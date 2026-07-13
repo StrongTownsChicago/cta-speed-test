@@ -85,6 +85,11 @@ def main():
         default=-180.0,
         help="Optional western boundary for tracking buses. If provided, only coordinates with longitude less than this value will be included in the analysis."
     )
+    parser.add_argument(
+        "--dump",
+        action="store_true",
+        help="Skip writing intermediate raw data files to `data` folder. Just write the final output file."
+    )
 
     args = parser.parse_args()
 
@@ -113,7 +118,8 @@ def main():
         if len(raw_bus_info) > 0:
             print("Successfully read bus data from the server. (iteration " + str(i+1) + ")")
             filename = systemtime.replace(" ", "").replace(":", "") + ".csv"
-            write_raw_line_info(raw_bus_info, filename)
+            if args.dump:
+                write_raw_line_info(raw_bus_info, filename)
         else:
             print("ERROR: Something went wrong. We didn't get any bus data back from the server.")
         all_raw_bus_info.append(raw_bus_info)
@@ -138,12 +144,7 @@ def main():
     )
 
     # Organize remaining data by vehicle ID
-    print("FILTERED RAW INFO:", filtered_raw_bus_info)
     vehicles = organize_by_vehicle_id(filtered_raw_bus_info)
-    print("TYPE OF VEHICLES:", type(vehicles))
-    #print(vehicles)
-    print("^^^ VEHICLES ORGANIZED")
-    print_vehicle_info(vehicles)
 
     # Post-processing (sort positions by time)
     for vid in vehicles.keys():
@@ -168,7 +169,7 @@ def main():
                     vehicle_statistics[vid].minutes,
                     vehicle_statistics[vid].speed
                 ]
-                csv_writer.writerow([row])
+                csv_writer.writerow(row)
 
     return 0
 

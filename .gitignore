@@ -12,8 +12,5 @@ secret.py
 secret.txt
 secret.md
 
-# Ignore data files
-data/*.csv
-
-# Ignore output files
-output/*.csv
+# Ignore data csv files and csv lock files
+*.csv*

@@ -1,3 +1,4 @@
+import argparse
 import csv
 import os
 import sys
@@ -78,6 +79,22 @@ class VehicleStatistic:
         self.minutes = vehicle.getTotalTime()
         self.speed = vehicle.getSpeed()
 
+def is_within_boundaries(
+    position: tuple,
+    north: float,
+    south: float,
+    east: float,
+    west: float
+) -> bool:
+    latitude = float(position[0])
+    longitude = float(position[1])
+    # Note: This will stop working if the borders cross the international date line. But, for Chicago, that's not a problem.
+    north_ok = (latitude < north)
+    south_ok = (latitude > south)
+    east_ok = (longitude < east)
+    west_ok = (longitude > west)
+    return north_ok and south_ok and east_ok and west_ok
+
 def organize_by_vehicle_id(readings: list) -> dict:
     vehicles = {} # dict{vid: Vehicle}
     for row in readings:
@@ -105,7 +122,13 @@ def calculate_vehicle_statistics(vehicles: dict) -> dict:
         vehicle_statistics[vid] = VehicleStatistic(vehicles[vid])
     return vehicle_statistics
 
-def get_vehicles_from_file(filepaths: list) -> dict:
+def get_vehicles_from_file(
+    filepaths: list,
+    north: float = 90.0,
+    south: float = -90.0,
+    east: float = 180.0,
+    west: float = -180.0
+) -> dict:
     vehicles = {}
     for filepath in filepaths:
         with open(os.path.join(folder, filepath), 'r') as f:
@@ -138,11 +161,44 @@ def get_vehicles_from_file(filepaths: list) -> dict:
                     vehicles[vid] = Vehicle(vid=vid, route=route, destination=destination)
 
                 # Add this position to the log for this vehicle
-                vehicles[vid].addPosition(timestamp=timestamp, latitude=lat, longitude=lon)
+                position = (lat, lon)
+                if is_within_boundaries(position, north, south, east, west):
+                    vehicles[vid].addPosition(timestamp=timestamp, latitude=lat, longitude=lon)
 
     return vehicles
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-n",
+        "--northboundary",
+        type=float,
+        default=90.0,
+        help="Optional northern boundary for tracking buses. If provided, only coordinates with latitude less than this boundary will be included in the analysis."
+    )
+    parser.add_argument(
+        "-s",
+        "--southboundary",
+        type=float,
+        default=-90.0,
+        help="Optional southern boundary for tracking buses. If provided, only coordinates with latitude greater than this value will be included in the analysis."
+    )
+    parser.add_argument(
+        "-e",
+        "--eastboundary",
+        type=float,
+        default=180.0,
+        help="Optional eastern boundary for tracking buses. If provided, only coordinates with longitude greater than this value will be included in the analysis."
+    )
+    parser.add_argument(
+        "-w",
+        "--westboundary",
+        type=float,
+        default=-180.0,
+        help="Optional western boundary for tracking buses. If provided, only coordinates with longitude less than this value will be included in the analysis."
+    )
+    args = parser.parse_args()
+
     dirtyfiles = os.listdir(folder)
     # Sanitize down to only .csv files
     datafiles = []
@@ -156,11 +212,25 @@ def main() -> int:
             datafiles.append(file)
 
     # Boil down all available files to create a dictionary of Vehicle objects
-    vehicles = get_vehicles_from_file(datafiles) # dict{vid: Vehicle}
+    vehicles = get_vehicles_from_file(
+        datafiles,
+        north=args.northboundary,
+        south=args.southboundary,
+        east=args.eastboundary,
+        west=args.westboundary
+    ) # dict{vid: Vehicle}
     
-    # Post-processing (sort positions by time)
+    # Post-processing: sort positions by time
     for vid in vehicles.keys():
         vehicles[vid].sortPositions()
+    
+    # Post processing: filter out any vehicles with no logged positions
+    vid_to_remove = []
+    for vid in vehicles.keys():
+        if len(vehicles[vid].positions) == 0:
+            vid_to_remove.append(vid)
+    for vid in vid_to_remove:
+        del vehicles[vid]
     
     # Calculate average speed per vehicle
     vehicle_statistics = calculate_vehicle_statistics(vehicles)

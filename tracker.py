@@ -5,8 +5,6 @@ import sys
 import requests
 import xml.etree.ElementTree as ET
 
-import secret # secret.py, ignored from source control.
-
 # Get the timestamp
 def get_api_time(key: str) -> str:
     systime_response = requests.get("https://www.ctabustracker.com/bustime/api/v3/gettime?key="+key)
