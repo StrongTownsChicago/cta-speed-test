@@ -7,7 +7,6 @@ import requests
 import sys
 import time
 
-# import parser
 from tracker import *
 from parser import *
 
