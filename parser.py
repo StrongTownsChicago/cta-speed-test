@@ -131,7 +131,7 @@ def get_vehicles_from_file(
 ) -> dict:
     vehicles = {}
     for filepath in filepaths:
-        with open(os.path.join(folder, filepath), 'r') as f:
+        with open(filepath, 'r') as f:
             csvreader = csv.reader(f)
             fields = next(csvreader)
             for row in csvreader:
@@ -199,7 +199,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    dirtyfiles = os.listdir(folder)
+    data_folder = os.path.join(os.path.dirname(__file__), "data")
+    dirtyfiles = os.listdir(data_folder)
     # Sanitize down to only .csv files
     datafiles = []
     last_timestamp = 0
@@ -240,7 +241,7 @@ def main() -> int:
     # TODO: Commandline-ify this whole tool to run for a period of time, track an arbitrary combination of routes, optionally take latitude and longitude min/max boundaries, and output either (A) a final CSV of time, distance, and speed averages across lines and destinations, or (B) a full list of buses and their speed stats.
 
     # Write all statistics to file
-    output_file = os.path.join("output", str(last_timestamp) + ".csv")
+    output_file = os.path.join(os.path.dirname(__file__), "output", str(last_timestamp) + ".csv")
     with open(output_file, "w") as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow(["vid", "route", "destination", "distance", "minutes", "speed"])
