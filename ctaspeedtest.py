@@ -14,9 +14,8 @@ import xml.etree.ElementTree as ET
 
 def write_raw_line_info(vehicles: list, filename: str):
     # Write vehicle info to CSV in the `data` folder.
-    folder = "data"
     fields = list(vehicles[0].keys())
-    with open(os.path.join(folder, filename), 'w') as f:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "data", filename), 'w') as f:
         writer = csv.writer(f)
         writer.writerow(fields)
         for vehicle in vehicles:
@@ -153,7 +152,8 @@ def main():
     vehicle_statistics = calculate_vehicle_statistics(vehicles)
 
     # Write all statistics to file
-    output_file = os.path.join("output", str(last_timestamp) + ".csv")
+    output_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "output", str(last_timestamp) + ".csv")
+    print("Writing output to", output_file)
     with open(output_file, "w") as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow(["vid", "route", "destination", "distance", "minutes", "speed"])
