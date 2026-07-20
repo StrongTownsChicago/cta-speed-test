@@ -13,6 +13,8 @@ If you have access to a Linux server, the easiest way to do this is to set up a 
 
 This can be placed anywhere. Just make sure your service file will be able to find it.
 
+You should change the python3 command to use your desired constraints - what boundaries you want, what bus lines you want to track, etc. The one below will track the 49, X49, 50, 94, and 66 within the boundaries specified every minute for 30 minutes.
+
 ```bash
 #!/bin/bash
 source <location_of_your_venv>/bin/activate
