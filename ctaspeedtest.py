@@ -1,9 +1,7 @@
 import argparse
 import csv
-import geopy
 import math # floor
 import os
-import requests
 import sys
 import time
 

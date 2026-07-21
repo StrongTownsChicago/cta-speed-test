@@ -1,5 +1,6 @@
 # Ignore my virtual environment
 .venv
+.vscode
 
 # Ignore python cache
 __pycache__
