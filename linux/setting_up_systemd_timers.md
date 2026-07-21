@@ -106,3 +106,33 @@ systemctl --user disable cta-speed-test.timer
 ```
 
 If you ever have to update the python script or the service, you should run `systemctl --user daemon-reload` again.
+
+## Other tips
+
+### Make sure your server's user is login-persistent
+
+If you don't do this, your systemctl user-scoped timer will stop running if your user is idle for long enough.
+You'll know you have this problem if you see output stop being produced a few hours after you log out.
+
+To check if you need to fix this, run:
+
+```
+loginctl show-user <your_user>
+```
+
+If you see `Linger=no`, then your user manager is not staying alive.
+
+To fix this, run:
+
+```
+sudo loginctl enable-linger <your_user>
+```
+
+### Some helpful commands for debugging / troubleshooting
+
+To check your user manager status and the output of any commands that are running under your user:
+
+```
+loginctl user-status <your_user>
+```
+
